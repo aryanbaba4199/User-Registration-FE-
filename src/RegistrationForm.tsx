@@ -3,6 +3,7 @@ import Select, { SingleValue } from 'react-select';
 import states from './Constants/states';
 import axios from 'axios';
 
+
 // --------Defining state interface --------
 
 interface StateOption {
@@ -23,6 +24,16 @@ interface UserData {
 }
 
 const RegistrationForm: React.FC = () => {
+  const [beUserData, setBeUserData] = useState<UserData>({
+    name: '',
+    gender: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    password: '',
+  })
   const [userData, setUserData] = useState<UserData>({
     name: '',
     gender: '',
@@ -54,16 +65,59 @@ const RegistrationForm: React.FC = () => {
   };
 
 
-
+  
 
   // --------Handling form submission-------------
-  const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();  // preventing user for null input
-    const res = await axios.post("", userData);
-    
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent the default form
+  
+    try {
+      // sending request to backend with user data
+      const res = await axios.post('http://localhost:5000/api/users/register', userData);
+      if (res.status === 200) {
+        setBeUserData(res.data);
+        
+        alert('Registration successful!');
+        setUserData({
+          name: '',
+          gender: '',
+          email: '',
+          phone: '',
+          address: '',
+          city: '',
+          state: '',
+          password: '',
+        });
+      }else{
+        alert('Bad Response!');
+      }
+    } catch (error) {
+      // Handling error ------
+      console.error('Something Went Wrong', error);
+      alert('Registration failed. Please try again.');
+    }
   };
+  
 
   return (
+    <>
+    {beUserData.email !=="" ? (<>
+      <div className='w-[100vw] h-[100vh] flex justify-center items-center flex-col'>
+         <h2 className='text-5xl font-bold'>Hello {beUserData.name}</h2> 
+         <div className='flex flex-col mt-8 font-2xl font-semibold justify-start items-start '>
+          <span>Your Email ID : {beUserData.email}</span>
+          <span>Your Mobile Number : {beUserData.phone}</span>
+         </div>
+         <div className='flex gap-2 font-lg mt-8'>
+          <span className=''>Address : </span>
+          <span className='text-gray-700'>{beUserData.address}</span>
+          <span className='text-gray-700'>{beUserData.city}</span>
+          <span className='text-gray-700'>{beUserData.state}</span>
+          <span className='text-gray-700'>{beUserData.address}</span>
+         </div>
+         <p className='mt-32 border-2 border-black px-6 py-2 hover:bg-black hover:text-white hover:scale-125 transition-all ease-in-out hover:cursor-pointer active:bg-slate-700'>Thank you</p>
+      </div>
+    </>) : (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-lg p-8 bg-white rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">User Registration</h2>
@@ -169,6 +223,8 @@ const RegistrationForm: React.FC = () => {
         </form>
       </div>
     </div>
+  )}
+    </>
   );
 };
 
